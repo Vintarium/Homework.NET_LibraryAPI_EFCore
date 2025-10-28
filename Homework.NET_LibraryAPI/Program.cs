@@ -2,6 +2,8 @@ using Homework.NET_LibraryAPI.Repositories;
 using Homework.NET_LibraryAPI.Repositories.Interfaces;
 using Homework.NET_LibraryAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using Homework.NET_LibraryAPI.Services.Interfaces;
+using Homework.NET_LibraryAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LibraryContext>(options =>
@@ -10,6 +12,9 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 });
 
 builder.Services.AddScoped<ILibraryRepository, EFLibraryRepository>();
+
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IBookService, BookService>();
 
 builder.Services.AddControllers();
 

@@ -1,6 +1,7 @@
-﻿using Homework.NET_LibraryAPI.Models.DTO;
-using Homework.NET_LibraryAPI.Models;
+﻿using Homework.NET_LibraryAPI.Models;
+using Homework.NET_LibraryAPI.Models.DTO;
 using Homework.NET_LibraryAPI.Repositories.Interfaces;
+using Homework.NET_LibraryAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 namespace Homework.NET_LibraryAPI.Controllers
 {
@@ -8,22 +9,23 @@ namespace Homework.NET_LibraryAPI.Controllers
     [Route("api/authors")]
     public class AuthorsController : ControllerBase
     {
-        private readonly ILibraryRepository _repo;
-        public AuthorsController(ILibraryRepository repository)
+        private readonly IAuthorService _service;
+
+        public AuthorsController(IAuthorService service)
         {
-            _repo = repository;
+            _service = service;
         }
 
         [HttpGet]
         public IActionResult GetAllAuthors()
         {
-            return Ok(_repo.GetAllAuthors());
+            return Ok(_service.GetAllAuthors());
         }
 
         [HttpGet("{id}")]
         public IActionResult GetAuthorById(int id)
         {
-            var author = _repo.GetAuthorById(id);
+            var author = _service.GetAuthorById(id);
             if (author != null)
             {
                 return Ok(author);
@@ -34,7 +36,7 @@ namespace Homework.NET_LibraryAPI.Controllers
         [HttpGet("bornbefore/{year}")]
         public IActionResult GetAuthorsBornBefore(int year)
         {
-            var authors = _repo.GetAuthorsBornBefore(year);
+            var authors = _service.GetAuthorsBornBefore(year);
             if (authors.Any())
             {
                 return Ok(authors);
@@ -45,7 +47,7 @@ namespace Homework.NET_LibraryAPI.Controllers
         [HttpGet("bornafter/{year}")]
         public IActionResult GetAuthorsBornAfter(int year)
         {
-            var authors = _repo.GetAuthorsBornAfter(year);
+            var authors = _service.GetAuthorsBornAfter(year);
             if (authors.Any())
             {
                 return Ok(authors);
@@ -56,37 +58,24 @@ namespace Homework.NET_LibraryAPI.Controllers
         [HttpPost]
         public IActionResult AddAuthor(AuthorCreationDto authorDto)
         {
-            var author = new Author
-            {
-                Name = authorDto.Name,
-                DateOfBirth = authorDto.DateOfBirth
-            };
-            var createdAuthor = _repo.CreateAuthor(author);
-            return CreatedAtAction(nameof(GetAuthorById), new { id = createdAuthor.Id }, createdAuthor);
+            var createdAuthorDto = _service.CreateAuthor(authorDto);
+            return CreatedAtAction(nameof(GetAuthorById), new { id = createdAuthorDto.Id }, createdAuthorDto);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateAuthor(int id, AuthorUpdateDto authorDto)
         {
-            if (_repo.GetAuthorById(id) == null)
+            if (_service.UpdateAuthor(id, authorDto))
             {
-                return NotFound($"Автора с ID: {id} не существует");
+                return NoContent();
             }
-
-            var authorModel = new Author
-            {
-                Id = id,
-                Name = authorDto.Name,
-                DateOfBirth = authorDto.DateOfBirth
-            };
-            _repo.UpdateAuthor(authorModel);
-            return NoContent();
+            return NotFound($"Автора с ID: {id} не существует");
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteAuthor(int id)
         {
-            if (_repo.DeleteAuthor(id))
+            if (_service.DeleteAuthor(id))
             {
                 return NoContent();
             }
