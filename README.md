@@ -7,26 +7,27 @@
 * Платформа: .NET 8 (ASP.NET Core Web API)
 * База данных: SQLite (через EF Core)
 * Подход к данным: Code First (Миграции EF Core)
-* Архитектура: Repository Pattern, Dependency Injection (DI)
+* **Архитектура:** **Трехслойная (Controller -> Service -> Repository)**, Dependency Injection (DI)
 * Сериализация: Полностью внедрена архитектура **DTO (Data Transfer Objects)** для всех операций CRUD, что устраняет проблемы циклической сериализации и повышает чистоту API-контракта.
 
 ## Структура Проекта
 
-- **Controllers:** AuthorsController.cs, BooksController.cs - API-интерфейсы. Принимают DTO для ввода, возвращают DTO для вывода.
-- **Repositories:** EFLibraryRepository.cs, ILibraryRepository.cs - Слой доступа к данным. Реализация использует **LINQ-проекции** для преобразования моделей EF Core в DTO.
-- **Data:** LibraryContext.cs - Контекст базы данных EF Core. Настроены отношения **один-ко-многим** и **Seed-данные**.
+- **Controllers:** AuthorsController.cs, BooksController.cs - API-интерфейсы. **Вызывают Слой Сервисов.**
+- **Services:** IAuthorService.cs, IBookService.cs, AuthorService.cs, BookService.cs - **Слой Бизнес-Логики.** Содержит DTO-преобразования и проверки (например, существование автора). **Вызывает Репозиторий.**
+- **Repositories:** EFLibraryRepository.cs, ILibraryRepository.cs - Слой доступа к данным. Реализация использует **LINQ-проекции** для преобразования моделей EF Core в DTO. **Работает только с БД.**
+- **Data:** LibraryContext.cs - Контекст базы данных EF Core. Настроены отношения **один-ко-многим** и Seed-данные.
 - **Migrations:** Файлы миграций. Автоматически применяются при запуске (Database.Migrate()).
-- **Models:** Author.cs, Book.cs - **Сущности предметной области**. Используются EF Core для создания таблиц и работы репозитория.
-- **Models/DTO:** 7 DTO-классов - Обеспечивает чистый API: отделяет ввод/вывод от моделей БД, решает проблему циклической сериализации.
-- **Program.cs:** Файл настройки. Конфигурация DI (репозиторий Scoped), подключение LibraryContext, настройка Swagger, автоприменение миграций.
-- **Homework.NET_LibraryAPI.Tests:** EFLibraryRepositoryTests.cs - **Unit-тесты (xUnit)**, проверяющие корректность LINQ-фильтрации и DTO-проекций с использованием In-Memory провайдера EF Core.
+- **Models:** Author.cs, Book.cs - **Сущности предметной области (EF Entities).**
+- **Models/DTO:** 7 DTO-классов - Обеспечивает чистый API-контракт.
+- **Program.cs:** Файл настройки. Конфигурация DI (Репозиторий Scoped, **Сервисы Scoped**), подключение LibraryContext, настройка Swagger, автоприменение миграций.
+- **Homework.NET_LibraryAPI.Tests:** EFLibraryRepositoryTests.cs - Unit-тесты (xUnit), проверяющие корректность LINQ-фильтрации и DTO-проекций.
 
 ## Запуск Проекта
 
-1. **Склонируйте репозиторий.**
-2. **Установите инструменты .NET.**
-3. **Запустите проект** (например, через Visual Studio (F5) или командой dotnet run).
-4. Проект автоматически создаст файл базы данных **Library.db** и заполнит его начальными данными (Seed-данными).
+1. Склонируйте репозиторий.
+2. Установите инструменты .NET.
+3. Запустите проект (например, через Visual Studio (F5) или командой dotnet run).
+4. Проект автоматически создаст файл базы данных Library.db и заполнит его начальными данными (Seed-данными).
 
 ## Ключевые Эндпоинты
 
