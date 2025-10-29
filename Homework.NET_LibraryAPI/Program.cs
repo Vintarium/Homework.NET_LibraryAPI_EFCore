@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Homework.NET_LibraryAPI.Services.Interfaces;
 using Homework.NET_LibraryAPI.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddDbContext<LibraryContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));

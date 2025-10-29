@@ -3,6 +3,7 @@ using Homework.NET_LibraryAPI.Models;
 using Homework.NET_LibraryAPI.Models.DTO;
 using Homework.NET_LibraryAPI.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
 
 namespace Homework.NET_LibraryAPI.Repositories
 {
@@ -13,15 +14,15 @@ namespace Homework.NET_LibraryAPI.Repositories
         {
             _context = context;
         }
-        public Author CreateAuthor(Author author)
+        public async Task<Author> CreateAuthorAsync(Author author, CancellationToken cancellationToken)
         {
             _context.Authors.Add(author);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync(cancellationToken);
             return author;
         }
-        public List<AuthorDto> GetAllAuthors()
+        public async Task<List<AuthorDto>> GetAllAuthorsAsync(CancellationToken cancellationToken)
         {
-            return _context.Authors
+            return await _context.Authors
                            .Select(a => new AuthorDto
                            {
                                Id = a.Id,
@@ -35,11 +36,11 @@ namespace Homework.NET_LibraryAPI.Repositories
                                    AuthorId = b.AuthorId
                                }).ToList()
                            })
-                           .ToList();
+                           .ToListAsync(cancellationToken);
         }
-        public AuthorDetailsDto? GetAuthorById(int id)
+        public async Task<AuthorDetailsDto?> GetAuthorByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return _context.Authors
+            return await _context.Authors
                            .Where(a => a.Id == id)
                            .Select(a => new AuthorDetailsDto
                            {
@@ -54,65 +55,65 @@ namespace Homework.NET_LibraryAPI.Repositories
                                    AuthorId = b.AuthorId
                                }).ToList()
                            })
-                           .FirstOrDefault();
+                           .FirstOrDefaultAsync();
         }
 
-        public bool UpdateAuthor(Author author)
+        public async Task<bool> UpdateAuthorAsync(Author author, CancellationToken cancellationToken)
         {
-            var existsAuthor = _context.Authors.FirstOrDefault(a => a.Id == author.Id);
+            var existsAuthor = await _context.Authors.FirstOrDefaultAsync(a => a.Id == author.Id);
             if (existsAuthor != null)
             {
                 existsAuthor.Name = author.Name;
                 existsAuthor.DateOfBirth = author.DateOfBirth;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync(cancellationToken);
                 return true;
             }
             return false;
         }
-        public bool DeleteAuthor(int id)
+        public async Task<bool> DeleteAuthorAsync(int id, CancellationToken cancellationToken)
         {
-            var author = _context.Authors.FirstOrDefault(a => a.Id == id);
+            var author = await _context.Authors.FirstOrDefaultAsync(a => a.Id == id);
             if (author != null)
             {
                 _context.Authors.Remove(author);
-                _context.SaveChanges();
+             await   _context.SaveChangesAsync(cancellationToken);
                 return true;
             }
             return false;
         }
-        public List<AuthorDto> GetAuthorsBornBefore(int year)
+        public async Task<List<AuthorDto>> GetAuthorsBornBeforeAsync(int year, CancellationToken cancellationToken)
         {
-            return _context.Authors
+            return await _context.Authors
                            .Where(a => a.DateOfBirth < year)
                            .OrderBy(a => a.DateOfBirth)
                            .Select(a => new AuthorDto { Id = a.Id, Name = a.Name, DateOfBirth = a.DateOfBirth })
-                           .ToList();
+                           .ToListAsync();
         }
-        public List<AuthorDto> GetAuthorsBornAfter(int year)
+        public async Task<List<AuthorDto>> GetAuthorsBornAfterAsync(int year, CancellationToken cancellationToken)
         {
-            return _context.Authors
+            return await _context.Authors
                            .Where(a => a.DateOfBirth > year)
                            .OrderBy(a => a.DateOfBirth)
                            .Select(a => new AuthorDto { Id = a.Id, Name = a.Name, DateOfBirth = a.DateOfBirth })
-                           .ToList();
+                           .ToListAsync();
         }
-        public Book CreateBook(Book book)
+        public async Task<Book> CreateBookAsync(Book book, CancellationToken cancellationToken)
         {
             _context.Books.Add(book);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync(cancellationToken);
             return book;
         }
 
-        public List<BookDto> GetAllBooks()
+        public async Task<List<BookDto>> GetAllBooksAsync(CancellationToken cancellationToken)
         {
-            return _context.Books
+            return await _context.Books
                            .OrderBy(b => b.Id)
                            .Select(b => new BookDto { Id = b.Id, Title = b.Title, PublishedYear = b.PublishedYear, AuthorId = b.AuthorId })
-                           .ToList();
+                           .ToListAsync();
         }
-        public BookDetailsDto? GetBookById(int id)
+        public async Task<BookDetailsDto?> GetBookByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return _context.Books
+            return await _context.Books
                            .Where(b => b.Id == id)
                            .Select(b => new BookDetailsDto
                            {
@@ -127,49 +128,49 @@ namespace Homework.NET_LibraryAPI.Repositories
                                    DateOfBirth = b.Author!.DateOfBirth,
                                }
                            })
-                           .FirstOrDefault();
+                           .FirstOrDefaultAsync();
         }
-        public bool UpdateBook(Book book)
+        public async Task<bool> UpdateBookAsync(Book book, CancellationToken cancellationToken)
         {
-            var existingBook = _context.Books.FirstOrDefault(b => b.Id == book.Id);
+            var existingBook = await _context.Books.FirstOrDefaultAsync(b => b.Id == book.Id);
 
             if (existingBook != null)
             {
                 existingBook.Title = book.Title;
                 existingBook.PublishedYear = book.PublishedYear;
                 existingBook.AuthorId = book.AuthorId;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync(cancellationToken);
                 return true;
             }
             return false;
         }
 
-        public bool DeleteBook(int id)
+        public async Task<bool> DeleteBookAsync(int id, CancellationToken cancellationToken)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == id);
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
             if (book != null)
             {
                 _context.Books.Remove(book);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync(cancellationToken);
                 return true;
             }
             return false;
         }
-        public List<BookDto> GetBooksPublishedAfter(int year)
+        public async Task<List<BookDto>> GetBooksPublishedAfterAsync(int year, CancellationToken cancellationToken)
         {
-            return _context.Books
+            return await _context.Books
                            .Where(b => b.PublishedYear > year)
                            .OrderBy(b => b.PublishedYear)
                            .Select(b => new BookDto { Id = b.Id, Title = b.Title, PublishedYear = b.PublishedYear, AuthorId = b.AuthorId })
-                           .ToList();
+                           .ToListAsync();
         }
-        public List<BookDto> GetBooksPublishedBefore(int year)
+        public async Task<List<BookDto>> GetBooksPublishedBeforeAsync(int year, CancellationToken cancellationToken)
         {
-            return _context.Books
+            return await _context.Books
                            .Where(b => b.PublishedYear < year)
                            .OrderBy(b => b.PublishedYear)
                            .Select(b => new BookDto { Id = b.Id, Title = b.Title, PublishedYear = b.PublishedYear, AuthorId = b.AuthorId })
-                           .ToList();
+                           .ToListAsync();
         }
     }
 }

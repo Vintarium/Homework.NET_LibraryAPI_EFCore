@@ -4,12 +4,12 @@ namespace Homework.NET_LibraryAPI.Services.Interfaces
 {
     public interface IBookService
     {
-        IEnumerable<BookDto> GetAllBooks();
-        BookDetailsDto? GetBookById(int id);
-        IEnumerable<BookDto> GetBooksPublishedAfter(int year);
-        IEnumerable<BookDto> GetBooksPublishedBefore(int year);
-        BookDetailsDto CreateBook(BookCreationDto bookDto);
-        bool UpdateBook(int id, BookUpdateDto bookDto);
-        bool DeleteBook(int id);
+        Task<List<BookDto>> GetAllBooksAsync(CancellationToken cancellationToken);
+        Task<BookDetailsDto?> GetBookByIdAsync(int id, CancellationToken cancellationToken);
+        Task<List<BookDto>> GetBooksPublishedAfterAsync(int year, CancellationToken cancellationToken);
+        Task<List<BookDto>> GetBooksPublishedBeforeAsync(int year, CancellationToken cancellationToken);
+        Task<BookDetailsDto> CreateBookAsync(BookCreationDto bookDto, CancellationToken cancellationToken);
+        Task<bool> UpdateBookAsync(int id, BookUpdateDto bookDto, CancellationToken cancellationToken);
+        Task<bool> DeleteBookAsync(int id, CancellationToken cancellationToken);
     }
 }

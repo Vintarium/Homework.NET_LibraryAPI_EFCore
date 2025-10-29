@@ -18,15 +18,15 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllBooks()
+        public async Task<IActionResult> GetAllBooks(CancellationToken cancellationToken)
         {
-            return Ok(_service.GetAllBooks());
+            return Ok(await _service.GetAllBooksAsync(cancellationToken));
         }
 
         [HttpGet("publishedafter/{year}")]
-        public IActionResult GetBooksPublishedAfter(int year)
+        public async Task<IActionResult> GetBooksPublishedAfter(int year, CancellationToken cancellationToken)
         {
-            var books = _service.GetBooksPublishedAfter(year);
+            var books = await _service.GetBooksPublishedAfterAsync(year, cancellationToken);
             if (books.Any())
             {
                 return Ok(books);
@@ -35,9 +35,9 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpGet("publishedbefore/{year}")]
-        public IActionResult GetBooksPublishedBefore(int year)
+        public async Task<IActionResult> GetBooksPublishedBefore(int year, CancellationToken cancellationToken)
         {
-            var books = _service.GetBooksPublishedBefore(year);
+            var books = await _service.GetBooksPublishedBeforeAsync(year, cancellationToken);
             if (books.Any())
             {
                 return Ok(books);
@@ -46,17 +46,17 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetBookById(int id)
+        public async Task<IActionResult> GetBookById(int id, CancellationToken cancellationToken)
         {
-            var book = _service.GetBookById(id);
+            var book = await _service.GetBookByIdAsync(id, cancellationToken);
             if (book == null) return NotFound();
             return Ok(book);
         }
 
         [HttpPost]
-        public IActionResult AddBook(BookCreationDto bookDto)
+        public async Task<IActionResult> AddBook(BookCreationDto bookDto, CancellationToken cancellationToken)
         {
-            var createdBookDto = _service.CreateBook(bookDto);
+            var createdBookDto = await _service.CreateBookAsync(bookDto, cancellationToken);
             if (createdBookDto == null)
             {
                 return BadRequest($"Автора с ID {bookDto.AuthorId} не существует.");
@@ -65,14 +65,14 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, BookUpdateDto bookDto)
+        public async Task<IActionResult> UpdateBook(int id, BookUpdateDto bookDto, CancellationToken cancellationToken)
         {
-            if (_service.UpdateBook(id, bookDto))
+            if (await _service.UpdateBookAsync(id, bookDto, cancellationToken))
             {
                 return NoContent();
             }
 
-            if (_service.GetBookById(id) == null)
+            if (await _service.GetBookByIdAsync(id, cancellationToken) == null)
             {
                 return NotFound($"Книги с ID: {id} не существует");
             }
@@ -80,9 +80,9 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(int id, CancellationToken cancellationToken)
         {
-            if (_service.DeleteBook(id))
+            if (await _service.DeleteBookAsync(id, cancellationToken))
             {
                 return NoContent();
             }

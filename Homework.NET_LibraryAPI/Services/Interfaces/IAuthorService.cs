@@ -4,12 +4,12 @@ namespace Homework.NET_LibraryAPI.Services.Interfaces
 {
     public interface IAuthorService
     {
-        IEnumerable<AuthorDto> GetAllAuthors();
-        AuthorDetailsDto? GetAuthorById(int id);
-        IEnumerable<AuthorDto> GetAuthorsBornBefore(int year);
-        IEnumerable<AuthorDto> GetAuthorsBornAfter(int year);
-        AuthorDetailsDto CreateAuthor(AuthorCreationDto authorDto);
-        bool UpdateAuthor(int id, AuthorUpdateDto authorDto);
-        bool DeleteAuthor(int id);
+       Task<List<AuthorDto>> GetAllAuthorsAsync(CancellationToken cancellationToken);
+        Task<AuthorDetailsDto?> GetAuthorByIdAsync(int id, CancellationToken cancellationToken);
+        Task<List<AuthorDto>> GetAuthorsBornBeforeAsync(int year, CancellationToken cancellationToken);
+        Task<List<AuthorDto>> GetAuthorsBornAfterAsync(int year, CancellationToken cancellationToken);
+        Task<AuthorDetailsDto> CreateAuthorAsync(AuthorCreationDto authorDto, CancellationToken cancellationToken);
+        Task<bool> UpdateAuthorAsync(int id, AuthorUpdateDto authorDto, CancellationToken cancellationToken);
+        Task<bool> DeleteAuthorAsync(int id, CancellationToken cancellationToken);
     }
 }

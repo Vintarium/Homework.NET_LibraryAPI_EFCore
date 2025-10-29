@@ -3,6 +3,7 @@ using Homework.NET_LibraryAPI.Models.DTO;
 using Homework.NET_LibraryAPI.Repositories.Interfaces;
 using Homework.NET_LibraryAPI.Services.Interfaces;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Homework.NET_LibraryAPI.Services
 {
@@ -13,14 +14,18 @@ namespace Homework.NET_LibraryAPI.Services
         {
             _repo = repo;
         }
-        public IEnumerable<BookDto> GetAllBooks() => _repo.GetAllBooks();
-        public BookDetailsDto? GetBookById(int id) => _repo.GetBookById(id);
-        public IEnumerable<BookDto> GetBooksPublishedAfter(int year) => _repo.GetBooksPublishedAfter(year);
-        public IEnumerable<BookDto> GetBooksPublishedBefore(int year) => _repo.GetBooksPublishedBefore(year);
+        public async Task<List<BookDto>> GetAllBooksAsync(CancellationToken cancellationToken) =>
+            await _repo.GetAllBooksAsync(cancellationToken);
+        public async Task<BookDetailsDto?> GetBookByIdAsync(int id, CancellationToken cancellationToken) =>
+            await _repo.GetBookByIdAsync(id,cancellationToken);
+        public async Task<List<BookDto>> GetBooksPublishedAfterAsync(int year, CancellationToken cancellationToken) =>
+            await _repo.GetBooksPublishedAfterAsync(year,cancellationToken);
+        public async Task<List<BookDto>> GetBooksPublishedBeforeAsync(int year, CancellationToken cancellationToken) =>
+            await _repo.GetBooksPublishedBeforeAsync(year, cancellationToken);
 
-        public BookDetailsDto CreateBook(BookCreationDto bookDto)
+        public async Task<BookDetailsDto> CreateBookAsync(BookCreationDto bookDto, CancellationToken cancellationToken)
         {
-            if (_repo.GetAuthorById(bookDto.AuthorId) == null)
+            if (await _repo.GetAuthorByIdAsync(bookDto.AuthorId, cancellationToken) == null)
             {
                 return null!; 
             }
@@ -31,17 +36,17 @@ namespace Homework.NET_LibraryAPI.Services
                 AuthorId = bookDto.AuthorId
             };
 
-            var createdBook = _repo.CreateBook(bookModel);
-            return GetBookById(createdBook.Id)!;
+            var createdBook =  await _repo.CreateBookAsync(bookModel, cancellationToken);
+            return (await GetBookByIdAsync(createdBook.Id, cancellationToken))!;
         }
 
-        public bool UpdateBook(int id, BookUpdateDto bookDto)
+        public async Task<bool> UpdateBookAsync(int id, BookUpdateDto bookDto,CancellationToken cancellationToken)
         {
-            if (_repo.GetBookById(id) == null)
+            if (await _repo.GetBookByIdAsync(id, cancellationToken) == null)
             {
                 return false;
             }
-            if (_repo.GetAuthorById(bookDto.AuthorId) == null)
+            if (await _repo.GetAuthorByIdAsync(bookDto.AuthorId, cancellationToken) == null)
             {
                 return false;
             }
@@ -52,12 +57,12 @@ namespace Homework.NET_LibraryAPI.Services
                 PublishedYear = bookDto.PublishedYear,
                 AuthorId = bookDto.AuthorId
             };
-            return _repo.UpdateBook(bookModel);
+            return await _repo.UpdateBookAsync(bookModel, cancellationToken);
         }
 
-        public bool DeleteBook(int id)
+        public async Task<bool> DeleteBookAsync(int id, CancellationToken cancellationToken)
         {
-            return _repo.DeleteBook(id);
+            return await _repo.DeleteBookAsync(id, cancellationToken);
         }
     }
 }

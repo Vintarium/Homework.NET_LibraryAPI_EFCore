@@ -10,6 +10,5 @@ namespace Homework.NET_LibraryAPI.Models.DTO {
 
         [Range(-1000, 2025, ErrorMessage = "Год рождения должен быть реалистичным.")]
         public int DateOfBirth { get; set; }
-
     }
 }

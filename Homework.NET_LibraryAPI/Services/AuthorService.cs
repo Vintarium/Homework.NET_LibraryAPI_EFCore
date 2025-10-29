@@ -4,6 +4,7 @@ using Homework.NET_LibraryAPI.Repositories.Interfaces;
 using Homework.NET_LibraryAPI.Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Homework.NET_LibraryAPI.Services
 {
@@ -15,25 +16,29 @@ namespace Homework.NET_LibraryAPI.Services
             _repo = repo;
         }
 
-        public IEnumerable<AuthorDto> GetAllAuthors() => _repo.GetAllAuthors();
-        public AuthorDetailsDto? GetAuthorById(int id) => _repo.GetAuthorById(id);
-        public IEnumerable<AuthorDto> GetAuthorsBornBefore(int year) => _repo.GetAuthorsBornBefore(year);
-        public IEnumerable<AuthorDto> GetAuthorsBornAfter(int year) => _repo.GetAuthorsBornAfter(year);
+        public async Task<List<AuthorDto>> GetAllAuthorsAsync(CancellationToken cancellationToken) =>
+            await _repo.GetAllAuthorsAsync(cancellationToken);
+        public async Task<AuthorDetailsDto?> GetAuthorByIdAsync(int id, CancellationToken cancellationToken) =>
+            await _repo.GetAuthorByIdAsync(id, cancellationToken);
+        public async Task<List<AuthorDto>> GetAuthorsBornBeforeAsync(int year, CancellationToken cancellationToken) =>
+            await _repo.GetAuthorsBornBeforeAsync(year, cancellationToken);
+        public async Task<List<AuthorDto>> GetAuthorsBornAfterAsync(int year, CancellationToken cancellationToken) =>
+            await _repo.GetAuthorsBornAfterAsync(year, cancellationToken);
 
-        public AuthorDetailsDto CreateAuthor(AuthorCreationDto authorDto)
+        public async Task<AuthorDetailsDto> CreateAuthorAsync(AuthorCreationDto authorDto, CancellationToken cancellationToken)
         {
             var authorModel = new Author
             {
                 Name = authorDto.Name,
                 DateOfBirth = authorDto.DateOfBirth
             };
-            var createdAuthor = _repo.CreateAuthor(authorModel);
-            return GetAuthorById(createdAuthor.Id)!;
+            var createdAuthor = await _repo.CreateAuthorAsync(authorModel, cancellationToken);
+            return (await GetAuthorByIdAsync(createdAuthor.Id, cancellationToken))!;
         }
 
-        public bool UpdateAuthor(int id, AuthorUpdateDto authorDto)
+        public async Task<bool> UpdateAuthorAsync(int id, AuthorUpdateDto authorDto, CancellationToken cancellationToken)
         {
-            if (_repo.GetAuthorById(id) == null)
+            if (await _repo.GetAuthorByIdAsync(id, cancellationToken) == null)
             {
                 return false;
             }
@@ -43,12 +48,12 @@ namespace Homework.NET_LibraryAPI.Services
                 Name = authorDto.Name,
                 DateOfBirth = authorDto.DateOfBirth
             };
-            return _repo.UpdateAuthor(authorModel);
+            return await _repo.UpdateAuthorAsync(authorModel, cancellationToken);
         }
 
-        public bool DeleteAuthor(int id)
+        public async Task<bool> DeleteAuthorAsync(int id, CancellationToken cancellationToken)
         {
-            return _repo.DeleteAuthor(id);
+            return await _repo.DeleteAuthorAsync(id, cancellationToken);
         }
     }
 }

@@ -17,15 +17,15 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllAuthors()
+        public async Task<IActionResult> GetAllAuthors(CancellationToken cancellationToken)
         {
-            return Ok(_service.GetAllAuthors());
+            return Ok(await _service.GetAllAuthorsAsync(cancellationToken));
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetAuthorById(int id)
+        public async Task<IActionResult> GetAuthorById(int id, CancellationToken cancellationToken)
         {
-            var author = _service.GetAuthorById(id);
+            var author = await _service.GetAuthorByIdAsync(id, cancellationToken);
             if (author != null)
             {
                 return Ok(author);
@@ -34,9 +34,9 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpGet("bornbefore/{year}")]
-        public IActionResult GetAuthorsBornBefore(int year)
+        public async Task<IActionResult> GetAuthorsBornBefore(int year, CancellationToken cancellationToken)
         {
-            var authors = _service.GetAuthorsBornBefore(year);
+            var authors = await _service.GetAuthorsBornBeforeAsync(year, cancellationToken);
             if (authors.Any())
             {
                 return Ok(authors);
@@ -45,9 +45,9 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpGet("bornafter/{year}")]
-        public IActionResult GetAuthorsBornAfter(int year)
+        public async Task<IActionResult> GetAuthorsBornAfter(int year, CancellationToken cancellationToken)
         {
-            var authors = _service.GetAuthorsBornAfter(year);
+            var authors = await _service.GetAuthorsBornAfterAsync(year, cancellationToken);
             if (authors.Any())
             {
                 return Ok(authors);
@@ -56,16 +56,16 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddAuthor(AuthorCreationDto authorDto)
+        public async Task<IActionResult> AddAuthor(AuthorCreationDto authorDto, CancellationToken cancellationToken)
         {
-            var createdAuthorDto = _service.CreateAuthor(authorDto);
+            var createdAuthorDto = await _service.CreateAuthorAsync(authorDto, cancellationToken);
             return CreatedAtAction(nameof(GetAuthorById), new { id = createdAuthorDto.Id }, createdAuthorDto);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateAuthor(int id, AuthorUpdateDto authorDto)
+        public async Task<IActionResult> UpdateAuthor(int id, AuthorUpdateDto authorDto, CancellationToken cancellationToken)
         {
-            if (_service.UpdateAuthor(id, authorDto))
+            if (await _service.UpdateAuthorAsync(id, authorDto, cancellationToken))
             {
                 return NoContent();
             }
@@ -73,9 +73,9 @@ namespace Homework.NET_LibraryAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteAuthor(int id)
+        public async Task<IActionResult> DeleteAuthor(int id, CancellationToken cancellationToken)
         {
-            if (_service.DeleteAuthor(id))
+            if (await _service.DeleteAuthorAsync(id, cancellationToken))
             {
                 return NoContent();
             }

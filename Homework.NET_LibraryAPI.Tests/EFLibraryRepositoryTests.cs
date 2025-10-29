@@ -20,18 +20,20 @@ namespace Homework.NET_LibraryAPI.Tests
         }
 
         [Fact]
-        public void GetAllAuthors_ShouldReturnAuthorDtoWithBookCount()
+        public async Task GetAllAuthors_ShouldReturnAuthorDtoWithBookCount()
         {
             // ARRANGE
             using var context = GetInMemoryDbContext();
             var repo = new EFLibraryRepository(context);
-            var author1 = repo.CreateAuthor(new Author { Name = "Пушкин", DateOfBirth = 1800 });
-            repo.CreateBook(new Book { Title = "Книга A", PublishedYear = 1820, AuthorId = author1.Id });
-            repo.CreateBook(new Book { Title = "Книга B", PublishedYear = 1821, AuthorId = author1.Id });
-            repo.CreateAuthor(new Author { Name = "Лермонтов", DateOfBirth = 1814 });
+            var token = CancellationToken.None;
+
+            var author1 = await repo.CreateAuthorAsync(new Author { Name = "Пушкин", DateOfBirth = 1800 } , token);
+            await repo.CreateBookAsync(new Book { Title = "Книга A", PublishedYear = 1820, AuthorId = author1.Id }, token);
+            await repo.CreateBookAsync(new Book { Title = "Книга B", PublishedYear = 1821, AuthorId = author1.Id }, token);
+            await repo.CreateAuthorAsync(new Author { Name = "Лермонтов", DateOfBirth = 1814 }, token);
 
             // ACT
-            var result = repo.GetAllAuthors();
+            var result = await repo.GetAllAuthorsAsync(token);
 
             // ASSERT
             Assert.Equal(2, result.Count);
@@ -45,20 +47,22 @@ namespace Homework.NET_LibraryAPI.Tests
         [Theory]
         [InlineData(1950, 1)]
         [InlineData(1800, 5)]
-        public void GetAuthorsBornAfter_ShouldReturnCorrectFilteredList(int year, int expectedCount)
+        public async Task GetAuthorsBornAfter_ShouldReturnCorrectFilteredList(int year, int expectedCount)
         {
             // ARRANGE
             using var context = GetInMemoryDbContext();
             var repo = new EFLibraryRepository(context);
-            repo.CreateAuthor(new Author { Name = "Достоевский", DateOfBirth = 1821 });
-            repo.CreateAuthor(new Author { Name = "Дойль", DateOfBirth = 1859 });
-            repo.CreateAuthor(new Author { Name = "Оруэлл", DateOfBirth = 1903 });
-            repo.CreateAuthor(new Author { Name = "Этвуд", DateOfBirth = 1939 });
-            repo.CreateAuthor(new Author { Name = "Мартин", DateOfBirth = 1952 });
-            repo.CreateAuthor(new Author { Name = "Пушкин", DateOfBirth = 1800 }); 
+            var token = CancellationToken.None;
+
+            await repo.CreateAuthorAsync(new Author { Name = "Достоевский", DateOfBirth = 1821 }, token);
+            await repo.CreateAuthorAsync(new Author { Name = "Дойль", DateOfBirth = 1859 }, token);
+            await repo.CreateAuthorAsync(new Author { Name = "Оруэлл", DateOfBirth = 1903 }, token);
+            await repo.CreateAuthorAsync(new Author { Name = "Этвуд", DateOfBirth = 1939 }, token);
+            await repo.CreateAuthorAsync(new Author { Name = "Мартин", DateOfBirth = 1952 }, token);
+            await repo.CreateAuthorAsync(new Author { Name = "Пушкин", DateOfBirth = 1800 }, token); 
 
             // ACT
-            var result = repo.GetAuthorsBornAfter(year);
+            var result = await repo.GetAuthorsBornAfterAsync(year, token);
 
             // ASSERT
             Assert.Equal(expectedCount, result.Count);
@@ -66,16 +70,17 @@ namespace Homework.NET_LibraryAPI.Tests
         }
 
         [Fact]
-        public void GetBookById_ShouldReturnBookDetailsDtoWithNestedAuthor()
+        public async Task GetBookById_ShouldReturnBookDetailsDtoWithNestedAuthor()
         {
             // ARRANGE
             using var context = GetInMemoryDbContext();
             var repo = new EFLibraryRepository(context);
-            var author = repo.CreateAuthor(new Author { Name = "Тестовый Автор", DateOfBirth = 1970 });
-            var book = repo.CreateBook(new Book { Title = "Тест-Книга", PublishedYear = 2000, AuthorId = author.Id });
+            var token = CancellationToken.None;
+            var author = await repo.CreateAuthorAsync(new Author { Name = "Тестовый Автор", DateOfBirth = 1970 }, token);
+            var book = await repo.CreateBookAsync(new Book { Title = "Тест-Книга", PublishedYear = 2000, AuthorId = author.Id }, token);
 
             // ACT
-            var result = repo.GetBookById(book.Id);
+            var result = await repo.GetBookByIdAsync(book.Id, token);
 
             // ASSERT
             Assert.NotNull(result);
